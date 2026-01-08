@@ -1,0 +1,14 @@
+spring:
+  config:
+#    change it to .env for further use and change variables accordingly.
+    import: optional:file:.env.example[.properties]
+  application:
+    name: lets-play
+#    configuration for database
+  mongodb:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    database: ${DB_NAME}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    authentication-database: ${DB_AUTH:admin}
