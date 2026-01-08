@@ -41,3 +41,7 @@ build/
 .env.test.local
 .env.production
 .env.production.local
+
+
+### Guide ###
+/guide
