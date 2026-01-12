@@ -52,4 +52,17 @@ public class User {
         this.password = password;
         this.role = "USER";
     }
+    
+    // Explicit getters for security service
+    public String getEmail() {
+        return email;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public String getRole() {
+        return role;
+    }
 }
