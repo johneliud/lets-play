@@ -23,8 +23,5 @@ public class ProductRequest {
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be positive")
     private Double price;
-    
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public Double getPrice() { return price; }
+
 }

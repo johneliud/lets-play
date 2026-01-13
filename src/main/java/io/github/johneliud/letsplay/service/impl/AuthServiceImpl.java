@@ -7,6 +7,7 @@ import io.github.johneliud.letsplay.model.User;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.security.JwtUtil;
 import io.github.johneliud.letsplay.service.AuthService;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,6 +48,11 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(user);
 
+        return getAuthResponse(savedUser);
+    }
+
+    @NonNull
+    private AuthResponse getAuthResponse(User savedUser) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getEmail());
         String token = jwtUtil.generateToken(userDetails);
 
@@ -67,14 +73,6 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-        String token = jwtUtil.generateToken(userDetails);
-
-        AuthResponse response = new AuthResponse();
-        response.setToken(token);
-        response.setEmail(user.getEmail());
-        response.setName(user.getName());
-        response.setRole(user.getRole());
-        return response;
+        return getAuthResponse(user);
     }
 }

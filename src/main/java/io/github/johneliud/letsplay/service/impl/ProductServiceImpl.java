@@ -3,7 +3,6 @@ package io.github.johneliud.letsplay.service.impl;
 import io.github.johneliud.letsplay.dto.product.ProductRequest;
 import io.github.johneliud.letsplay.dto.product.ProductResponse;
 import io.github.johneliud.letsplay.model.Product;
-import io.github.johneliud.letsplay.model.User;
 import io.github.johneliud.letsplay.repository.ProductRepository;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.service.ProductService;
@@ -13,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (!canModifyProduct(product, userId)) {
+        if (canModifyProduct(product, userId)) {
             throw new RuntimeException("Access denied");
         }
 
@@ -72,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (!canModifyProduct(product, userId)) {
+        if (canModifyProduct(product, userId)) {
             throw new RuntimeException("Access denied");
         }
 
@@ -88,10 +88,11 @@ public class ProductServiceImpl implements ProductService {
 
     private boolean canModifyProduct(Product product, String userId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assert auth != null;
         boolean isAdmin = auth.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            .anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
         
-        return isAdmin || product.getUserId().equals(userId);
+        return !isAdmin && !product.getUserId().equals(userId);
     }
 
     private ProductResponse mapToProductResponse(Product product) {

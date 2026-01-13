@@ -19,8 +19,5 @@ public class UpdateUserRequest {
     
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
-    
-    public String getName() { return name; }
-    public String getEmail() { return email; }
-    public String getPassword() { return password; }
+
 }
