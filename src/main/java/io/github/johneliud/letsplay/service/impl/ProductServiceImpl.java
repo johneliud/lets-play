@@ -41,9 +41,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse createProduct(ProductRequest request, String userId) {
         Product product = new Product();
-        product.setName(request.name);
-        product.setDescription(request.description);
-        product.setPrice(request.price);
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
         product.setUserId(userId);
 
         Product savedProduct = productRepository.save(product);
@@ -59,9 +59,9 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Access denied");
         }
 
-        product.setName(request.name);
-        product.setDescription(request.description);
-        product.setPrice(request.price);
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
 
         Product updatedProduct = productRepository.save(product);
         return mapToProductResponse(updatedProduct);
@@ -96,17 +96,17 @@ public class ProductServiceImpl implements ProductService {
 
     private ProductResponse mapToProductResponse(Product product) {
         ProductResponse response = new ProductResponse();
-        response.id = product.getId();
-        response.name = product.getName();
-        response.description = product.getDescription();
-        response.price = product.getPrice();
-        response.userId = product.getUserId();
-        response.createdAt = product.getCreatedAt();
-        response.updatedAt = product.getUpdatedAt();
+        response.setId(product.getId());
+        response.setName(product.getName());
+        response.setDescription(product.getDescription());
+        response.setPrice(product.getPrice());
+        response.setUserId(product.getUserId());
+        response.setCreatedAt(product.getCreatedAt());
+        response.setUpdatedAt(product.getUpdatedAt());
 
         // Get user name
         userRepository.findById(product.getUserId())
-            .ifPresent(user -> response.userName = user.getName());
+            .ifPresent(user -> response.setUserName(user.getName()));
 
         return response;
     }
