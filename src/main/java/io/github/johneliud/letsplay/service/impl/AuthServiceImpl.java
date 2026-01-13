@@ -3,6 +3,8 @@ package io.github.johneliud.letsplay.service.impl;
 import io.github.johneliud.letsplay.dto.auth.AuthResponse;
 import io.github.johneliud.letsplay.dto.auth.LoginRequest;
 import io.github.johneliud.letsplay.dto.auth.RegisterRequest;
+import io.github.johneliud.letsplay.exception.DuplicateResourceException;
+import io.github.johneliud.letsplay.exception.UnauthorizedException;
 import io.github.johneliud.letsplay.model.User;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.security.JwtUtil;
@@ -37,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateResourceException("Email already exists");
         }
 
         User user = new User();
@@ -71,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         User user = userRepository.findByEmail(request.getEmail())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
 
         return getAuthResponse(user);
     }

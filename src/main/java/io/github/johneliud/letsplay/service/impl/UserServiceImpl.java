@@ -2,6 +2,8 @@ package io.github.johneliud.letsplay.service.impl;
 
 import io.github.johneliud.letsplay.dto.user.UpdateUserRequest;
 import io.github.johneliud.letsplay.dto.user.UserResponse;
+import io.github.johneliud.letsplay.exception.DuplicateResourceException;
+import io.github.johneliud.letsplay.exception.ResourceNotFoundException;
 import io.github.johneliud.letsplay.model.User;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.service.UserService;
@@ -31,21 +33,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserById(String id) {
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return mapToUserResponse(user);
     }
 
     @Override
     public UserResponse updateUser(String id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (request.getName() != null) {
             user.setName(request.getName());
         }
         if (request.getEmail() != null) {
             if (userRepository.existsByEmail(request.getEmail()) && !user.getEmail().equals(request.getEmail())) {
-                throw new RuntimeException("Email already exists");
+                throw new DuplicateResourceException("Email already exists");
             }
             user.setEmail(request.getEmail());
         }
@@ -60,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(String id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found");
+            throw new ResourceNotFoundException("User not found");
         }
         userRepository.deleteById(id);
     }
