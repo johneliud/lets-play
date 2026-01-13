@@ -42,6 +42,8 @@ build/
 .env.production
 .env.production.local
 
+### Secrets ###
+src/main/resources/application-secrets.properties
 
 ### Guide ###
 /guide
