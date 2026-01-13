@@ -3,6 +3,7 @@ package io.github.johneliud.letsplay.service.impl;
 import io.github.johneliud.letsplay.dto.product.ProductRequest;
 import io.github.johneliud.letsplay.dto.product.ProductResponse;
 import io.github.johneliud.letsplay.model.Product;
+import io.github.johneliud.letsplay.model.User;
 import io.github.johneliud.letsplay.repository.ProductRepository;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.service.ProductService;
@@ -39,23 +40,29 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse createProduct(ProductRequest request, String userId) {
+    public ProductResponse createProduct(ProductRequest request, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setPrice(request.getPrice());
-        product.setUserId(userId);
+        product.setUserId(user.getId());
 
         Product savedProduct = productRepository.save(product);
         return mapToProductResponse(savedProduct);
     }
 
     @Override
-    public ProductResponse updateProduct(String id, ProductRequest request, String userId) {
+    public ProductResponse updateProduct(String id, ProductRequest request, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (canModifyProduct(product, userId)) {
+        if (!canModifyProduct(product, user.getId())) {
             throw new RuntimeException("Access denied");
         }
 
@@ -68,11 +75,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(String id, String userId) {
+    public void deleteProduct(String id, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        if (canModifyProduct(product, userId)) {
+        if (!canModifyProduct(product, user.getId())) {
             throw new RuntimeException("Access denied");
         }
 
