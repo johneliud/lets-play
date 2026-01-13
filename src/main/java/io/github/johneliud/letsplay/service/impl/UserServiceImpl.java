@@ -40,17 +40,17 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (request.name != null) {
-            user.setName(request.name);
+        if (request.getName() != null) {
+            user.setName(request.getName());
         }
-        if (request.email != null) {
-            if (userRepository.existsByEmail(request.email) && !user.getEmail().equals(request.email)) {
+        if (request.getEmail() != null) {
+            if (userRepository.existsByEmail(request.getEmail()) && !user.getEmail().equals(request.getEmail())) {
                 throw new RuntimeException("Email already exists");
             }
-            user.setEmail(request.email);
+            user.setEmail(request.getEmail());
         }
-        if (request.password != null) {
-            user.setPassword(passwordEncoder.encode(request.password));
+        if (request.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
         User updatedUser = userRepository.save(user);
@@ -67,12 +67,12 @@ public class UserServiceImpl implements UserService {
 
     private UserResponse mapToUserResponse(User user) {
         UserResponse response = new UserResponse();
-        response.id = user.getId();
-        response.name = user.getName();
-        response.email = user.getEmail();
-        response.role = user.getRole();
-        response.createdAt = user.getCreatedAt();
-        response.updatedAt = user.getUpdatedAt();
+        response.setId(user.getId());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setCreatedAt(user.getCreatedAt());
+        response.setUpdatedAt(user.getUpdatedAt());
         return response;
     }
 }
