@@ -2,6 +2,8 @@ package io.github.johneliud.letsplay.service.impl;
 
 import io.github.johneliud.letsplay.dto.product.ProductRequest;
 import io.github.johneliud.letsplay.dto.product.ProductResponse;
+import io.github.johneliud.letsplay.exception.ForbiddenException;
+import io.github.johneliud.letsplay.exception.ResourceNotFoundException;
 import io.github.johneliud.letsplay.model.Product;
 import io.github.johneliud.letsplay.model.User;
 import io.github.johneliud.letsplay.repository.ProductRepository;
@@ -35,14 +37,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse getProductById(String id) {
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return mapToProductResponse(product);
     }
 
     @Override
     public ProductResponse createProduct(ProductRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         Product product = new Product();
         product.setName(request.getName());
@@ -57,13 +59,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse updateProduct(String id, ProductRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (!canModifyProduct(product, user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new ForbiddenException("Access denied: You can only modify your own products");
         }
 
         product.setName(request.getName());
@@ -77,13 +79,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(String id, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (!canModifyProduct(product, user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new ForbiddenException("Access denied: You can only delete your own products");
         }
 
         productRepository.deleteById(id);
