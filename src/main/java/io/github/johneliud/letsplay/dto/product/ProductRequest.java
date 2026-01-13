@@ -5,8 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductRequest {
     
     @NotBlank(message = "Product name is required")
@@ -19,4 +23,5 @@ public class ProductRequest {
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be positive")
     private Double price;
+
 }

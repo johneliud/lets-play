@@ -20,14 +20,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "users")
 public class User {
-    
+
+    // Getters and setters
     @Id
     private String id;
     
     @NotBlank(message = "Name is required")
     @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
-    
+
+    // Explicit getters for security service
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     @Indexed(unique = true)
@@ -52,17 +54,5 @@ public class User {
         this.password = password;
         this.role = "USER";
     }
-    
-    // Explicit getters for security service
-    public String getEmail() {
-        return email;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
-    
-    public String getRole() {
-        return role;
-    }
+
 }

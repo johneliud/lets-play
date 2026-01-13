@@ -19,7 +19,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Document(collection = "products")
 public class Product {
-    
+
+    // Getters and setters
     @Id
     private String id;
     
@@ -49,4 +50,5 @@ public class Product {
         this.price = price;
         this.userId = userId;
     }
+
 }
