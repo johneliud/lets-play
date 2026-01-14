@@ -10,6 +10,8 @@ import io.github.johneliud.letsplay.repository.ProductRepository;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,18 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll().stream()
             .map(this::mapToProductResponse)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ProductResponse> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable)
+            .map(this::mapToProductResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> searchProducts(String name, Double minPrice, Double maxPrice, Pageable pageable) {
+        return productRepository.searchProducts(name, minPrice, maxPrice, pageable)
+            .map(this::mapToProductResponse);
     }
 
     @Override
