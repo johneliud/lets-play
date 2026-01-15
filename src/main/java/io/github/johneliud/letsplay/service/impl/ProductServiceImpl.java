@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        if (canModifyProduct(product, user.getId())) {
+        if (!canModifyProduct(product, user.getId())) {
             throw new ForbiddenException("Access denied: You can only modify your own products");
         }
 
@@ -98,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        if (canModifyProduct(product, user.getId())) {
+        if (!canModifyProduct(product, user.getId())) {
             throw new ForbiddenException("Access denied: You can only delete your own products");
         }
 
