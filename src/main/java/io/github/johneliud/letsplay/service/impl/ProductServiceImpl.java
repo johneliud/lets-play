@@ -10,6 +10,8 @@ import io.github.johneliud.letsplay.repository.ProductRepository;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,22 +32,34 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll().stream()
-            .map(this::mapToProductResponse)
-            .collect(Collectors.toList());
+                .map(this::mapToProductResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ProductResponse> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable)
+                .map(this::mapToProductResponse);
+    }
+
+    @Override
+    public Page<ProductResponse> searchProducts(String name, Double minPrice, Double maxPrice, Pageable pageable) {
+        return productRepository.searchProducts(name, minPrice, maxPrice, pageable)
+                .map(this::mapToProductResponse);
     }
 
     @Override
     public ProductResponse getProductById(String id) {
         Product product = productRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return mapToProductResponse(product);
     }
 
     @Override
     public ProductResponse createProduct(ProductRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
@@ -59,12 +73,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse updateProduct(String id, ProductRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        
-        Product product = productRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (!canModifyProduct(product, user.getId())) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (canModifyProduct(product, user.getId())) {
             throw new ForbiddenException("Access denied: You can only modify your own products");
         }
 
@@ -79,12 +93,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(String id, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        
-        Product product = productRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (!canModifyProduct(product, user.getId())) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (canModifyProduct(product, user.getId())) {
             throw new ForbiddenException("Access denied: You can only delete your own products");
         }
 
@@ -94,17 +108,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> getProductsByUser(String userId) {
         return productRepository.findByUserId(userId).stream()
-            .map(this::mapToProductResponse)
-            .collect(Collectors.toList());
+                .map(this::mapToProductResponse)
+                .collect(Collectors.toList());
     }
 
     private boolean canModifyProduct(Product product, String userId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         assert auth != null;
         boolean isAdmin = auth.getAuthorities().stream()
-            .anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
-        
-        return !isAdmin && !product.getUserId().equals(userId);
+                .anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
+
+        return isAdmin || product.getUserId().equals(userId);
     }
 
     private ProductResponse mapToProductResponse(Product product) {
@@ -119,7 +133,7 @@ public class ProductServiceImpl implements ProductService {
 
         // Get user name
         userRepository.findById(product.getUserId())
-            .ifPresent(user -> response.setUserName(user.getName()));
+                .ifPresent(user -> response.setUserName(user.getName()));
 
         return response;
     }

@@ -8,6 +8,8 @@ import io.github.johneliud.letsplay.model.User;
 import io.github.johneliud.letsplay.repository.UserRepository;
 import io.github.johneliud.letsplay.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream()
             .map(this::mapToUserResponse)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+            .map(this::mapToUserResponse);
     }
 
     @Override

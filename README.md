@@ -150,6 +150,24 @@ Content-Type: application/json
 GET /products
 ```
 
+**With Pagination:**
+```http
+GET /products?page=0&size=10&sortBy=price
+```
+
+**With Search:**
+```http
+GET /products?name=laptop&minPrice=100&maxPrice=500&page=0&size=10
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (0-indexed)
+- `size` (optional): Items per page
+- `sortBy` (optional): Sort field (price, name, createdAt)
+- `name` (optional): Search by product name (partial match)
+- `minPrice` (optional): Minimum price filter
+- `maxPrice` (optional): Maximum price filter
+
 **Response (200 OK):**
 
 ```json
@@ -165,6 +183,17 @@ GET /products
     "updatedAt": "2024-01-13T10:30:00"
   }
 ]
+```
+
+**Paginated Response:**
+```json
+{
+  "content": [...],
+  "totalPages": 5,
+  "totalElements": 50,
+  "size": 10,
+  "number": 0
+}
 ```
 
 #### Get Product by ID (Public)
